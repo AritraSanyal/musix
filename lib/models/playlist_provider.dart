@@ -1,5 +1,6 @@
 import 'package:audioplayers/audioplayers.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/models/homepage_widget.dart';
 import 'package:flutter_application_1/models/song_data.dart';
 
 class PlaylistProvider extends ChangeNotifier {
@@ -151,6 +152,14 @@ class PlaylistProvider extends ChangeNotifier {
   bool get isPlaying => _isPlaying;
   Duration get currentDuration => _currentDuration;
   Duration get totalDuration => _totalDuration;
+
+  void onSongChanged(Song song) {
+    WidgetService.updateWidget(
+      title: song.title,
+      artist: song.artist,
+      art: song.album,
+    );
+  }
 
   // ===== Setters =====
 
