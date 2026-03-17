@@ -1,7 +1,7 @@
 //
 //  MusixWidget.swift
 //  MusixWidget
-//
+
 
 import WidgetKit
 import SwiftUI
@@ -51,7 +51,7 @@ struct Provider: TimelineProvider {
     func loadEntry() -> SongEntry {
 
         let defaults = UserDefaults(
-            suiteName: "group.com.yourapp.music"
+            suiteName: "group.MusixWidget"
         )
 
         let title = defaults?.string(forKey: "title") ?? "No Song"
@@ -169,3 +169,4 @@ struct MusixWidget: Widget {
         artPath: ""
     )
 }
+

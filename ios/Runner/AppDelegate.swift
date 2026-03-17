@@ -28,13 +28,14 @@ import WidgetKit
 
             if let args = call.arguments as? [String: Any] {
 
+              
                 let title = args["title"] as? String ?? ""
                 let artist = args["artist"] as? String ?? ""
                 let art = args["art"] as? String ?? ""
 
                 // Shared storage (App Groups)
                 let defaults = UserDefaults(
-                    suiteName: "group.com.yourapp.music"
+                    suiteName: "group.MusixWidget"
                 )
 
                 defaults?.set(title, forKey: "title")
@@ -42,7 +43,11 @@ import WidgetKit
                 defaults?.set(art, forKey: "art")
 
                 // Refresh widget
-                WidgetCenter.shared.reloadAllTimelines()
+                if #available(iOS 14.0, *) {
+                    WidgetCenter.shared.reloadAllTimelines()
+                } else {
+                    // Fallback on earlier versions
+                }
 
                 result(true)
             }
