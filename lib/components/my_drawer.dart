@@ -12,7 +12,7 @@ class MyDrawer extends StatelessWidget {
     return Drawer(
       backgroundColor: Theme.of(
         context,
-      ).colorScheme.secondary.withOpacity(0.85),
+      ).colorScheme.secondary.withValues(alpha: 12),
       child: Column(
         children: [
           Padding(

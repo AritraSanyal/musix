@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/pages/home_screen.dart';
 import 'package:flutter_application_1/pages/login_page.dart';
-import 'package:flutter_application_1/pages/post_page.dart';
 import 'package:flutter_application_1/pages/profile_page.dart';
+import 'package:flutter_application_1/pages/upload_screen.dart';
 
 class Bottombar extends StatelessWidget {
   const Bottombar({super.key});
@@ -15,7 +16,17 @@ class Bottombar extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
         children: [
           IconButton(icon: const Icon(Icons.search), onPressed: () {}),
-          IconButton(icon: const Icon(Icons.album), onPressed: () {}),
+          IconButton(
+            icon: const Icon(Icons.album),
+            onPressed: () {
+              Navigator.pop(context);
+
+              Navigator.push(
+                context,
+                MaterialPageRoute(builder: (context) => LoginPage()),
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.add),
             onPressed: () {
@@ -23,7 +34,7 @@ class Bottombar extends StatelessWidget {
 
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => PostPage()),
+                MaterialPageRoute(builder: (context) => UploadScreen()),
               );
             },
           ),
@@ -34,7 +45,7 @@ class Bottombar extends StatelessWidget {
 
               Navigator.push(
                 context,
-                MaterialPageRoute(builder: (context) => LoginPage()),
+                MaterialPageRoute(builder: (context) => HomeScreen()),
               );
             },
           ),

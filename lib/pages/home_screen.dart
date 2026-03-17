@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_application_1/components/bottombar.dart';
+import 'package:flutter_application_1/components/my_drawer.dart';
 import 'package:just_audio/just_audio.dart';
 import '../services/pocketbase_service.dart';
 import 'upload_screen.dart';
 
 class HomeScreen extends StatefulWidget {
+  const HomeScreen({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _HomeScreenState createState() => _HomeScreenState();
 }
 
@@ -15,6 +20,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text("Musix")),
+      drawer: MyDrawer(),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.upload),
         onPressed: () {
@@ -69,6 +75,7 @@ class _HomeScreenState extends State<HomeScreen> {
           );
         },
       ),
+      bottomNavigationBar: const Bottombar(),
     );
   }
 }
