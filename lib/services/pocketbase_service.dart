@@ -1,8 +1,8 @@
-import 'package:http/http.dart';
+import 'package:http/http.dart' as http show MultipartFile;
 import 'package:pocketbase/pocketbase.dart';
 
 class PocketBaseService {
-  static final pb = PocketBase('http://10.0.2.2:8090');
+  static final pb = PocketBase('http://127.0.0.1:8090');
 
   static Future<void> uploadSong({
     required String title,
@@ -17,8 +17,16 @@ class PocketBaseService {
         .create(
           body: {"title": title, "artist": artist},
           files: [
-            MultipartFile.fromBytes("audio", audioBytes, filename: audioName),
-            MultipartFile.fromBytes("cover", coverBytes, filename: coverName),
+            http.MultipartFile.fromBytes(
+              "audio",
+              audioBytes,
+              filename: audioName,
+            ),
+            http.MultipartFile.fromBytes(
+              "cover",
+              coverBytes,
+              filename: coverName,
+            ),
           ],
         );
   }

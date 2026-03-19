@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:file_picker/file_picker.dart';
-
 import '../services/pocketbase_service.dart';
 
 class UploadScreen extends StatefulWidget {
@@ -17,12 +16,15 @@ class _UploadScreenState extends State<UploadScreen> {
 
   Future pickAudio() async {
     final result = await FilePicker.platform.pickFiles(
-      type: FileType.audio,
+      type: FileType.custom,
+      allowedExtensions: ['mp3', 'wav', 'm4a'],
       withData: true,
     );
 
     if (result != null) {
       setState(() => audioFile = result.files.first);
+    } else {
+      print("No file selected");
     }
   }
 
@@ -38,20 +40,34 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   Future upload() async {
-    if (audioFile == null || coverFile == null) return;
+    if (audioFile == null || coverFile == null) {
+      print("FILES MISSING ❌");
+      return;
+    }
 
-    await PocketBaseService.uploadSong(
-      title: titleController.text,
-      artist: artistController.text,
-      audioBytes: audioFile!.bytes!,
-      audioName: audioFile!.name,
-      coverBytes: coverFile!.bytes!,
-      coverName: coverFile!.name,
-    );
+    try {
+      await PocketBaseService.uploadSong(
+        title: titleController.text,
+        artist: artistController.text,
+        audioBytes: audioFile!.bytes!,
+        audioName: audioFile!.name,
+        coverBytes: coverFile!.bytes!,
+        coverName: coverFile!.name,
+      );
 
-    ScaffoldMessenger.of(
-      context,
-    ).showSnackBar(const SnackBar(content: Text("Uploaded!")));
+      print("UPLOAD SUCCESS ✅");
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Uploaded!")));
+    } catch (e) {
+      print("UPLOAD ERROR ❌");
+      print(e.toString());
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Upload failed")));
+    }
   }
 
   @override

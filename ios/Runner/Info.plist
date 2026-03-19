@@ -45,5 +45,16 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+	<key>NSAppTransportSecurity</key>
+ <dict>
+  <key>NSAllowsArbitraryLoads</key>
+  <true/>
+</dict>
+
+<key>NSPhotoLibraryUsageDescription</key>
+<string>We need access to select album cover</string>
+
+<key>NSDocumentsFolderUsageDescription</key>
+<string>We need access to pick audio files</string>
 </dict>
 </plist>
