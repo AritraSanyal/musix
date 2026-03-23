@@ -2,7 +2,13 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class ApiService {
-  static const String baseUrl = 'http://10.95.65.227:8080';
+  static String get baseUrl {
+    const envUrl = String.fromEnvironment('API_BASE_URL', defaultValue: '');
+    if (envUrl.isNotEmpty) return envUrl;
+    // Default for device testing - change IP as needed
+    return 'http://10.95.65.227:8080';
+  }
+
   static String? _token;
 
   static void setToken(String token) {
