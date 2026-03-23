@@ -1,11 +1,13 @@
 meta {
   name: Login
   type: http
+  seq: 1
 }
 
 post {
   url: {{baseUrl}}/auth/login
   body: json
+  auth: none
 }
 
 body:json {
@@ -13,4 +15,8 @@ body:json {
     "email": "test@example.com",
     "password": "password123"
   }
+}
+
+vars:pre-request {
+  baseUrl: http://localhost:8080
 }
