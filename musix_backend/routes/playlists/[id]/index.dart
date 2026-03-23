@@ -2,6 +2,7 @@ import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:musix_backend/models/user.dart';
 import 'package:musix_backend/repositories/data_store.dart';
+import 'package:musix_backend/services/auth_service.dart';
 
 Future<Response> onRequest(RequestContext context, String id) async {
   final dataStore = context.read<DataStore>();
@@ -19,13 +20,38 @@ Future<Response> onRequest(RequestContext context, String id) async {
       return Response.json(body: playlist.toJson());
 
     case HttpMethod.put:
-      final user = context.read<User>();
-      if (playlist.userId != user.id) {
+      final authHeader = context.request.headers['authorization'];
+      if (authHeader == null || !authHeader.startsWith('Bearer ')) {
+        return Response.json(
+          statusCode: HttpStatus.unauthorized,
+          body: {'error': 'Missing authorization header'},
+        );
+      }
+
+      final token = authHeader.substring(7);
+      final payload = AuthService.verifyToken(token);
+      if (payload == null) {
+        return Response.json(
+          statusCode: HttpStatus.unauthorized,
+          body: {'error': 'Invalid token'},
+        );
+      }
+
+      final userId = payload['sub'] as String?;
+      if (userId == null) {
+        return Response.json(
+          statusCode: HttpStatus.unauthorized,
+          body: {'error': 'Invalid token'},
+        );
+      }
+
+      if (playlist.userId != userId) {
         return Response.json(
           statusCode: HttpStatus.forbidden,
           body: {'error': 'Not authorized'},
         );
       }
+
       final body = await context.request.json() as Map<String, dynamic>;
       final updated = playlist.copyWith(
         name: body['name'] as String? ?? playlist.name,
@@ -38,8 +64,32 @@ Future<Response> onRequest(RequestContext context, String id) async {
       return Response.json(body: updated.toJson());
 
     case HttpMethod.delete:
-      final user = context.read<User>();
-      if (playlist.userId != user.id) {
+      final authHeader = context.request.headers['authorization'];
+      if (authHeader == null || !authHeader.startsWith('Bearer ')) {
+        return Response.json(
+          statusCode: HttpStatus.unauthorized,
+          body: {'error': 'Missing authorization header'},
+        );
+      }
+
+      final token = authHeader.substring(7);
+      final payload = AuthService.verifyToken(token);
+      if (payload == null) {
+        return Response.json(
+          statusCode: HttpStatus.unauthorized,
+          body: {'error': 'Invalid token'},
+        );
+      }
+
+      final userId = payload['sub'] as String?;
+      if (userId == null) {
+        return Response.json(
+          statusCode: HttpStatus.unauthorized,
+          body: {'error': 'Invalid token'},
+        );
+      }
+
+      if (playlist.userId != userId) {
         return Response.json(
           statusCode: HttpStatus.forbidden,
           body: {'error': 'Not authorized'},
