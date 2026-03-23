@@ -230,7 +230,9 @@ class DataStore {
       final data = jsonDecode(content) as List<dynamic>;
       _favorites = {
         for (final f in data)
-          '${f['user_id']}_${f['song_id']}': Favorite.fromJson(f),
+          '${f['user_id']}_${f['song_id']}': Favorite.fromJson(
+            f as Map<String, dynamic>,
+          ),
       };
     }
   }

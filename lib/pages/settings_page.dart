@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:url_launcher/url_launcher.dart';
 import '../providers/auth_provider.dart';
-import '../providers/theme_provider.dart' as theme;
+import '../themes/theme_provider.dart' as theme;
 
 class SettingsPage extends StatelessWidget {
   const SettingsPage({super.key});
