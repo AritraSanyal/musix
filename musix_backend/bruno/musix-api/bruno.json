@@ -1,0 +1,18 @@
+{
+  "version": "1",
+  "name": "Musix API",
+  "type": "collection",
+  "description": "Backend API for Musix music app",
+  "variables": [],
+  "requests": [],
+  "ignore": [
+    "node_modules",
+    ".git"
+  ],
+  "size": 0.0027570724487304688,
+  "filesCount": 15,
+  "presets": {
+    "requestType": "http",
+    "requestUrl": "http://localhost:8080"
+  }
+}

@@ -1,8 +1,0 @@
-{
-  "version": "1",
-  "name": "Musix API",
-  "type": "collection",
-  "description": "Backend API for Musix music app",
-  "variables": [],
-  "requests": []
-}
