@@ -1,0 +1,29 @@
+meta {
+  name: Create Song
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/songs/create
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+    "title": "New Song",
+    "artist": "Artist Name",
+    "audio_url": "/uploads/audio/user-id/song.mp3",
+    "cover_url": "/uploads/covers/user-id/cover.jpg",
+    "duration_seconds": 180
+  }
+}
+
+body:type {
+  json
+}
+
+auth:bearer {
+  token: {{token}}
+}

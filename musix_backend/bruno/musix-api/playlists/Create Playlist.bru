@@ -1,0 +1,27 @@
+meta {
+  name: Create Playlist
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/playlists
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+    "name": "My Playlist",
+    "description": "A cool playlist",
+    "is_public": true
+  }
+}
+
+body:type {
+  json
+}
+
+auth:bearer {
+  token: {{token}}
+}

@@ -1,0 +1,15 @@
+meta {
+  name: Upload Audio
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/upload/audio
+  body: none
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{token}}
+}

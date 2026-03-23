@@ -1,0 +1,26 @@
+meta {
+  name: Update Playlist
+  type: http
+  seq: 4
+}
+
+put {
+  url: {{baseUrl}}/playlists/:id
+  body: json
+  auth: bearer
+}
+
+body:json {
+  {
+    "name": "Updated Name",
+    "description": "Updated description"
+  }
+}
+
+body:type {
+  json
+}
+
+auth:bearer {
+  token: {{token}}
+}
