@@ -41,9 +41,7 @@ class DataStore {
       final List<dynamic> data = jsonDecode(content) as List<dynamic>;
       _users = {
         for (var u in data)
-          (u as Map<String, dynamic>)['id'] as String: User.fromJson(
-            u as Map<String, dynamic>,
-          ),
+          (u as Map<String, dynamic>)['id'] as String: User.fromJson(u),
       };
     }
   }
@@ -84,9 +82,7 @@ class DataStore {
       final data = jsonDecode(content) as List<dynamic>;
       _songs = {
         for (var s in data)
-          (s as Map<String, dynamic>)['id'] as String: Song.fromJson(
-            s as Map<String, dynamic>,
-          ),
+          (s as Map<String, dynamic>)['id'] as String: Song.fromJson(s),
       };
     }
   }
@@ -160,9 +156,7 @@ class DataStore {
       final data = jsonDecode(content) as List<dynamic>;
       _playlists = {
         for (var p in data)
-          (p as Map<String, dynamic>)['id'] as String: Playlist.fromJson(
-            p as Map<String, dynamic>,
-          ),
+          (p as Map<String, dynamic>)['id'] as String: Playlist.fromJson(p),
       };
     }
   }
@@ -235,9 +229,8 @@ class DataStore {
       final content = await file.readAsString();
       final data = jsonDecode(content) as List<dynamic>;
       _favorites = {
-        for (var f in data)
-          '${(f as Map<String, dynamic>)['user_id']}_${(f as Map<String, dynamic>)['song_id']}':
-              Favorite.fromJson(f as Map<String, dynamic>),
+        for (final f in data)
+          '${f['user_id']}_${f['song_id']}': Favorite.fromJson(f),
       };
     }
   }

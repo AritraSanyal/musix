@@ -1,7 +1,6 @@
 import 'dart:io';
 import 'package:dart_frog/dart_frog.dart';
 import 'package:musix_backend/models/playlist.dart';
-import 'package:musix_backend/models/user.dart';
 import 'package:musix_backend/repositories/data_store.dart';
 import 'package:musix_backend/services/auth_service.dart';
 import 'package:uuid/uuid.dart';
