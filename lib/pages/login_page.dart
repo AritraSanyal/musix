@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/songs_provider.dart';
-import '../providers/theme_provider.dart';
 import '../themes/theme_provider.dart' as theme;
 
 class LoginPage extends StatefulWidget {
@@ -193,7 +192,9 @@ class _LoginPageState extends State<LoginPage> {
                       },
                       child: Consumer<theme.ThemeProvider>(
                         builder: (context, themeProvider, child) {
-                          return Text(themeProvider.isDark ? 'Dark' : 'Light');
+                          return Text(
+                            themeProvider.isDarkMode ? 'Dark' : 'Light',
+                          );
                         },
                       ),
                     ),
