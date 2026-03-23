@@ -26,30 +26,21 @@ class _UploadScreenState extends State<UploadScreen> {
   }
 
   Future<void> _pickAudio() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.custom,
-      allowedExtensions: ['mp3', 'wav', 'm4a', 'aac', 'ogg'],
-      withData: true,
-    );
-
-    if (result != null) {
+    final result = await FilePicker.platform.pickFiles();
+    if (result != null && result.files.isNotEmpty) {
       setState(() => _audioFile = result.files.first);
     }
   }
 
   Future<void> _pickCover() async {
-    final result = await FilePicker.platform.pickFiles(
-      type: FileType.image,
-      withData: true,
-    );
-
-    if (result != null) {
+    final result = await FilePicker.platform.pickFiles(type: FileType.image);
+    if (result != null && result.files.isNotEmpty) {
       setState(() => _coverFile = result.files.first);
     }
   }
 
   Future<void> _upload() async {
-    if (_audioFile == null) {
+    if (_audioFile == null || _audioFile!.path == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please select an audio file')),
       );
@@ -69,18 +60,20 @@ class _UploadScreenState extends State<UploadScreen> {
       String? audioUrl;
       String? coverUrl;
 
-      audioUrl = await ApiService.uploadAudio(_audioFile!.path!);
+      final audioResponse = await ApiService.uploadAudio(_audioFile!.path!);
+      audioUrl = audioResponse['url'] as String?;
 
-      if (_coverFile != null) {
-        coverUrl = await ApiService.uploadCover(_coverFile!.path!);
+      if (_coverFile != null && _coverFile!.path != null) {
+        final coverResponse = await ApiService.uploadCover(_coverFile!.path!);
+        coverUrl = coverResponse['url'] as String?;
       }
 
       final success = await Provider.of<SongsProvider>(context, listen: false)
           .createSong(
             title: _titleController.text,
             artist: _artistController.text,
-            audioUrl: audioUrl['url'],
-            coverUrl: coverUrl?['url'],
+            audioUrl: audioUrl,
+            coverUrl: coverUrl,
           );
 
       if (success && mounted) {
