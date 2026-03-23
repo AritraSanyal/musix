@@ -1,13 +1,11 @@
 meta {
   name: Login
   type: http
-  seq: 2
 }
 
 post {
   url: {{baseUrl}}/auth/login
   body: json
-  auth: none
 }
 
 body:json {
@@ -15,8 +13,4 @@ body:json {
     "email": "test@example.com",
     "password": "password123"
   }
-}
-
-body:type {
-  json
 }

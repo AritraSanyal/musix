@@ -1,7 +1,6 @@
 meta {
   name: Update Playlist
   type: http
-  seq: 4
 }
 
 put {
@@ -13,12 +12,8 @@ put {
 body:json {
   {
     "name": "Updated Name",
-    "description": "Updated description"
+    "description": "New description"
   }
-}
-
-body:type {
-  json
 }
 
 auth:bearer {

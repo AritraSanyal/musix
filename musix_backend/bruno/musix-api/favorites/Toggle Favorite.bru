@@ -1,12 +1,10 @@
 meta {
   name: Toggle Favorite
   type: http
-  seq: 2
 }
 
 post {
   url: {{baseUrl}}/favorites/:songId
-  body: none
   auth: bearer
 }
 

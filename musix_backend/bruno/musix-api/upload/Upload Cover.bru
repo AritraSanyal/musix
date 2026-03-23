@@ -1,19 +1,14 @@
 meta {
   name: Upload Cover
   type: http
-  seq: 2
 }
 
 post {
   url: {{baseUrl}}/upload/cover
-  body: none
+  body: formurlencoded
   auth: bearer
 }
 
 auth:bearer {
   token: {{token}}
-}
-
-vars:pre-request {
-  baseUrl: http://localhost:8080
 }
