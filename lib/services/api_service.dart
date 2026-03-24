@@ -5,8 +5,7 @@ class ApiService {
   static String get baseUrl {
     const envUrl = String.fromEnvironment('API_BASE_URL', defaultValue: '');
     if (envUrl.isNotEmpty) return envUrl;
-    // Default for device testing - change IP as needed
-    return 'http://10.95.65.227:8080';
+    return 'http://localhost:8080';
   }
 
   static String? _token;

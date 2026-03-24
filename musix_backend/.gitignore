@@ -14,3 +14,9 @@ build/
 
 # Test related files
 coverage/
+
+# Data files (contains user data)
+data/
+
+# Uploaded files
+uploads/

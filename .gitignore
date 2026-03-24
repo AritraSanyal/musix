@@ -49,3 +49,9 @@ app.*.map.json
 
 # Agent documentation
 AGENTS.md
+
+# Data files (contains user data)
+musix_backend/data/
+
+# Uploaded files
+musix_backend/uploads/
