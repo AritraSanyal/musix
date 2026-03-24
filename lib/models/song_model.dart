@@ -5,6 +5,7 @@ class Song {
   final String? audioUrl;
   final String? coverUrl;
   final int? durationSeconds;
+  final String? genre;
   final String? userId;
   final DateTime createdAt;
 
@@ -15,6 +16,7 @@ class Song {
     this.audioUrl,
     this.coverUrl,
     this.durationSeconds,
+    this.genre,
     this.userId,
     required this.createdAt,
   });
@@ -27,6 +29,7 @@ class Song {
       audioUrl: json['audio_url'],
       coverUrl: json['cover_url'],
       durationSeconds: json['duration_seconds'],
+      genre: json['genre'],
       userId: json['user_id'],
       createdAt: DateTime.parse(json['created_at']),
     );
@@ -40,6 +43,7 @@ class Song {
       'audio_url': audioUrl,
       'cover_url': coverUrl,
       'duration_seconds': durationSeconds,
+      'genre': genre,
       'user_id': userId,
       'created_at': createdAt.toIso8601String(),
     };

@@ -19,7 +19,9 @@ class _HomeScreenState extends State<HomeScreen> {
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<SongsProvider>(context, listen: false).fetchSongs();
+      final provider = Provider.of<SongsProvider>(context, listen: false);
+      provider.fetchSongs();
+      provider.fetchGenres();
     });
   }
 
@@ -29,12 +31,50 @@ class _HomeScreenState extends State<HomeScreen> {
     super.dispose();
   }
 
+  void _showFilterSheet(BuildContext context) {
+    final provider = Provider.of<SongsProvider>(context, listen: false);
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
+      ),
+      builder: (ctx) =>
+          _FilterSheet(provider: provider, searchQuery: _searchController.text),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Musix"),
         actions: [
+          Consumer<SongsProvider>(
+            builder: (context, provider, _) {
+              return Stack(
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.filter_list),
+                    onPressed: () => _showFilterSheet(context),
+                  ),
+                  if (provider.hasActiveFilters)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        width: 8,
+                        height: 8,
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
@@ -228,6 +268,211 @@ class _SongCard extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+class _FilterSheet extends StatefulWidget {
+  final SongsProvider provider;
+  final String searchQuery;
+
+  const _FilterSheet({required this.provider, required this.searchQuery});
+
+  @override
+  State<_FilterSheet> createState() => _FilterSheetState();
+}
+
+class _FilterSheetState extends State<_FilterSheet> {
+  String? _selectedGenre;
+  String _sortBy = 'date';
+  String _sortOrder = 'desc';
+  DateTime? _fromDate;
+  DateTime? _toDate;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedGenre = widget.provider.activeGenre;
+    _sortBy = widget.provider.sortBy;
+    _sortOrder = widget.provider.sortOrder;
+    if (widget.provider.fromDate != null) {
+      _fromDate = DateTime.tryParse(widget.provider.fromDate!);
+    }
+    if (widget.provider.toDate != null) {
+      _toDate = DateTime.tryParse(widget.provider.toDate!);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children: [
+              const Text(
+                'Filters',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              TextButton(
+                onPressed: () {
+                  setState(() {
+                    _selectedGenre = null;
+                    _sortBy = 'date';
+                    _sortOrder = 'desc';
+                    _fromDate = null;
+                    _toDate = null;
+                  });
+                },
+                child: const Text('Clear All'),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          const Text('Genre', style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            value: _selectedGenre,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            ),
+            hint: const Text('All Genres'),
+            items: [
+              const DropdownMenuItem(value: null, child: Text('All Genres')),
+              ...widget.provider.genres.map(
+                (g) => DropdownMenuItem(value: g, child: Text(g)),
+              ),
+            ],
+            onChanged: (value) => setState(() => _selectedGenre = value),
+          ),
+          const SizedBox(height: 20),
+          const Text('Sort By', style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          DropdownButtonFormField<String>(
+            value: _sortBy,
+            decoration: InputDecoration(
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+            ),
+            items: const [
+              DropdownMenuItem(value: 'date', child: Text('Date Added')),
+              DropdownMenuItem(value: 'title', child: Text('Title (A-Z)')),
+              DropdownMenuItem(value: 'artist', child: Text('Artist (A-Z)')),
+            ],
+            onChanged: (value) => setState(() => _sortBy = value!),
+          ),
+          const SizedBox(height: 20),
+          const Text('Order', style: TextStyle(fontWeight: FontWeight.w600)),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: ChoiceChip(
+                  label: const Text('Descending'),
+                  selected: _sortOrder == 'desc',
+                  onSelected: (selected) {
+                    if (selected) setState(() => _sortOrder = 'desc');
+                  },
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: ChoiceChip(
+                  label: const Text('Ascending'),
+                  selected: _sortOrder == 'asc',
+                  onSelected: (selected) {
+                    if (selected) setState(() => _sortOrder = 'asc');
+                  },
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          const Text(
+            'Date Range',
+            style: TextStyle(fontWeight: FontWeight.w600),
+          ),
+          const SizedBox(height: 8),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: _fromDate ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    );
+                    if (date != null) {
+                      setState(() => _fromDate = date);
+                    }
+                  },
+                  icon: const Icon(Icons.calendar_today, size: 16),
+                  label: Text(
+                    _fromDate != null
+                        ? '${_fromDate!.day}/${_fromDate!.month}/${_fromDate!.year}'
+                        : 'From Date',
+                  ),
+                ),
+              ),
+              const SizedBox(width: 8),
+              Expanded(
+                child: OutlinedButton.icon(
+                  onPressed: () async {
+                    final date = await showDatePicker(
+                      context: context,
+                      initialDate: _toDate ?? DateTime.now(),
+                      firstDate: DateTime(2000),
+                      lastDate: DateTime.now(),
+                    );
+                    if (date != null) {
+                      setState(() => _toDate = date);
+                    }
+                  },
+                  icon: const Icon(Icons.calendar_today, size: 16),
+                  label: Text(
+                    _toDate != null
+                        ? '${_toDate!.day}/${_toDate!.month}/${_toDate!.year}'
+                        : 'To Date',
+                  ),
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 24),
+          ElevatedButton(
+            onPressed: () {
+              widget.provider.searchWithFilters(
+                query: widget.searchQuery,
+                genre: _selectedGenre,
+                sortBy: _sortBy,
+                sortOrder: _sortOrder,
+                fromDate: _fromDate,
+                toDate: _toDate,
+              );
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              padding: const EdgeInsets.symmetric(vertical: 16),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
+            ),
+            child: const Text('Apply Filters'),
+          ),
+          const SizedBox(height: 8),
+        ],
       ),
     );
   }

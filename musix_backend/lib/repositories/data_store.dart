@@ -4,6 +4,7 @@ import '../models/user.dart';
 import '../models/song.dart';
 import '../models/playlist.dart';
 import '../models/favorite.dart';
+import '../models/follow.dart';
 
 class DataStore {
   static final DataStore _instance = DataStore._internal();
@@ -17,6 +18,7 @@ class DataStore {
   Map<String, Song> _songs = {};
   Map<String, Playlist> _playlists = {};
   Map<String, Favorite> _favorites = {};
+  Map<String, Follow> _follows = {};
 
   bool _initialized = false;
 
@@ -30,6 +32,7 @@ class DataStore {
     await _loadSongs();
     await _loadPlaylists();
     await _loadFavorites();
+    await _loadFollows();
     _initialized = true;
   }
 
@@ -74,6 +77,21 @@ class DataStore {
     await _saveUsers();
   }
 
+  List<User> getAllUsers() {
+    return _users.values.toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  }
+
+  List<User> getArtists() {
+    return _users.values.where((u) => u.role.name == 'artist').toList()
+      ..sort((a, b) => b.createdAt.compareTo(a.createdAt));
+  }
+
+  Future<void> deleteUser(String id) async {
+    _users.remove(id);
+    await _saveUsers();
+  }
+
   // Songs
   Future<void> _loadSongs() async {
     final file = File('$_dataPath/songs.json');
@@ -101,15 +119,92 @@ class DataStore {
 
   Song? getSongById(String id) => _songs[id];
 
-  List<Song> searchSongs(String query) {
-    final q = query.toLowerCase();
-    return _songs.values
-        .where(
-          (s) =>
-              s.title.toLowerCase().contains(q) ||
-              s.artist.toLowerCase().contains(q),
-        )
+  List<Song> searchSongs(
+    String query, {
+    String? genre,
+    String sortBy = 'date',
+    bool descending = true,
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) {
+    var results = _songs.values.toList();
+
+    // Text search filter
+    if (query.isNotEmpty) {
+      final q = query.toLowerCase();
+      results = results
+          .where(
+            (s) =>
+                s.title.toLowerCase().contains(q) ||
+                s.artist.toLowerCase().contains(q),
+          )
+          .toList();
+    }
+
+    // Genre filter
+    if (genre != null && genre.isNotEmpty) {
+      results = results
+          .where((s) => s.genre?.toLowerCase() == genre.toLowerCase())
+          .toList();
+    }
+
+    // Date range filter
+    if (fromDate != null) {
+      results = results
+          .where(
+            (s) =>
+                s.createdAt.isAfter(fromDate) ||
+                s.createdAt.isAtSameMomentAs(fromDate),
+          )
+          .toList();
+    }
+    if (toDate != null) {
+      results = results
+          .where(
+            (s) =>
+                s.createdAt.isBefore(toDate) ||
+                s.createdAt.isAtSameMomentAs(toDate),
+          )
+          .toList();
+    }
+
+    // Sorting
+    switch (sortBy.toLowerCase()) {
+      case 'title':
+        results.sort(
+          (a, b) => descending
+              ? b.title.toLowerCase().compareTo(a.title.toLowerCase())
+              : a.title.toLowerCase().compareTo(b.title.toLowerCase()),
+        );
+        break;
+      case 'artist':
+        results.sort(
+          (a, b) => descending
+              ? b.artist.toLowerCase().compareTo(a.artist.toLowerCase())
+              : a.artist.toLowerCase().compareTo(b.artist.toLowerCase()),
+        );
+        break;
+      case 'date':
+      default:
+        results.sort(
+          (a, b) => descending
+              ? b.createdAt.compareTo(a.createdAt)
+              : a.createdAt.compareTo(b.createdAt),
+        );
+        break;
+    }
+
+    return results;
+  }
+
+  List<String> getGenres() {
+    final genres = _songs.values
+        .where((s) => s.genre != null && s.genre!.isNotEmpty)
+        .map((s) => s.genre!)
+        .toSet()
         .toList();
+    genres.sort();
+    return genres;
   }
 
   Future<Song> createSong(Song song) async {
@@ -264,5 +359,63 @@ class DataStore {
       );
     }
     await _saveFavorites();
+  }
+
+  // Follows
+  Future<void> _loadFollows() async {
+    final file = File('$_dataPath/follows.json');
+    if (await file.exists()) {
+      final content = await file.readAsString();
+      final data = jsonDecode(content) as List<dynamic>;
+      _follows = {
+        for (var f in data)
+          '${f['follower_id']}_${f['following_id']}': Follow.fromJson(
+            f as Map<String, dynamic>,
+          ),
+      };
+    }
+  }
+
+  Future<void> _saveFollows() async {
+    final file = File('$_dataPath/follows.json');
+    await file.writeAsString(
+      jsonEncode(_follows.values.map((f) => f.toJson()).toList()),
+    );
+  }
+
+  List<Follow> getFollowers(String userId) {
+    return _follows.values.where((f) => f.followingId == userId).toList();
+  }
+
+  List<Follow> getFollowing(String userId) {
+    return _follows.values.where((f) => f.followerId == userId).toList();
+  }
+
+  int getFollowerCount(String userId) {
+    return _follows.values.where((f) => f.followingId == userId).length;
+  }
+
+  int getFollowingCount(String userId) {
+    return _follows.values.where((f) => f.followerId == userId).length;
+  }
+
+  bool isFollowing(String followerId, String followingId) {
+    return _follows.containsKey('${followerId}_$followingId');
+  }
+
+  Future<void> toggleFollow(String followerId, String followingId) async {
+    final key = '${followerId}_$followingId';
+    if (followerId == followingId) return;
+
+    if (_follows.containsKey(key)) {
+      _follows.remove(key);
+    } else {
+      _follows[key] = Follow(
+        followerId: followerId,
+        followingId: followingId,
+        createdAt: DateTime.now(),
+      );
+    }
+    await _saveFollows();
   }
 }

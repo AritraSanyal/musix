@@ -50,6 +50,7 @@ Future<Response> onRequest(RequestContext context) async {
   final audioUrl = body['audio_url'] as String?;
   final coverUrl = body['cover_url'] as String?;
   final durationSeconds = body['duration_seconds'] as int?;
+  final genre = body['genre'] as String?;
 
   if (title == null || artist == null || audioUrl == null) {
     return Response.json(
@@ -66,6 +67,7 @@ Future<Response> onRequest(RequestContext context) async {
     audioUrl: audioUrl,
     coverUrl: coverUrl,
     durationSeconds: durationSeconds,
+    genre: genre,
     userId: user.id,
     createdAt: now,
   );

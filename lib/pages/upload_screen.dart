@@ -14,14 +14,32 @@ class UploadScreen extends StatefulWidget {
 class _UploadScreenState extends State<UploadScreen> {
   final _titleController = TextEditingController();
   final _artistController = TextEditingController();
+  final _genreController = TextEditingController();
   PlatformFile? _audioFile;
   PlatformFile? _coverFile;
   bool _isUploading = false;
+  List<String> _availableGenres = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadGenres();
+  }
+
+  Future<void> _loadGenres() async {
+    try {
+      final genres = await ApiService.getGenres();
+      if (mounted) {
+        setState(() => _availableGenres = genres);
+      }
+    } catch (_) {}
+  }
 
   @override
   void dispose() {
     _titleController.dispose();
     _artistController.dispose();
+    _genreController.dispose();
     super.dispose();
   }
 
@@ -74,6 +92,7 @@ class _UploadScreenState extends State<UploadScreen> {
             artist: _artistController.text,
             audioUrl: audioUrl,
             coverUrl: coverUrl,
+            genre: _genreController.text.isEmpty ? null : _genreController.text,
           );
 
       if (success && mounted) {
@@ -122,6 +141,37 @@ class _UploadScreenState extends State<UploadScreen> {
                   borderRadius: BorderRadius.circular(12),
                 ),
               ),
+            ),
+            const SizedBox(height: 16),
+            Autocomplete<String>(
+              optionsBuilder: (textEditingValue) {
+                if (textEditingValue.text.isEmpty) {
+                  return const Iterable<String>.empty();
+                }
+                return _availableGenres.where(
+                  (genre) => genre.toLowerCase().contains(
+                    textEditingValue.text.toLowerCase(),
+                  ),
+                );
+              },
+              onSelected: (selection) {
+                _genreController.text = selection;
+              },
+              fieldViewBuilder:
+                  (context, controller, focusNode, onFieldSubmitted) {
+                    return TextField(
+                      controller: controller,
+                      focusNode: focusNode,
+                      decoration: InputDecoration(
+                        labelText: 'Genre (optional)',
+                        hintText: 'e.g., Pop, Rock, Jazz',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      onChanged: (value) => _genreController.text = value,
+                    );
+                  },
             ),
             const SizedBox(height: 24),
             _FilePickerTile(

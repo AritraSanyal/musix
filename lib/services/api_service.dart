@@ -88,12 +88,48 @@ class ApiService {
     throw Exception('Search failed');
   }
 
+  static Future<List<dynamic>> searchSongsWithFilters({
+    String? query,
+    String? genre,
+    String sortBy = 'date',
+    String sortOrder = 'desc',
+    DateTime? fromDate,
+    DateTime? toDate,
+  }) async {
+    final params = <String, String>{};
+    if (query != null && query.isNotEmpty) params['q'] = query;
+    if (genre != null && genre.isNotEmpty) params['genre'] = genre;
+    params['sort'] = sortBy;
+    params['order'] = sortOrder;
+    if (fromDate != null) params['from'] = fromDate.toIso8601String();
+    if (toDate != null) params['to'] = toDate.toIso8601String();
+
+    final uri = Uri.parse(
+      '$baseUrl/songs/search',
+    ).replace(queryParameters: params);
+    final res = await http.get(uri);
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    }
+    throw Exception('Search with filters failed');
+  }
+
+  static Future<List<String>> getGenres() async {
+    final res = await http.get(Uri.parse('$baseUrl/songs/genres'));
+    if (res.statusCode == 200) {
+      final data = jsonDecode(res.body) as List<dynamic>;
+      return data.map((e) => e.toString()).toList();
+    }
+    throw Exception('Failed to fetch genres');
+  }
+
   static Future<dynamic> createSong({
     required String title,
     required String artist,
     String? audioUrl,
     String? coverUrl,
     int? durationSeconds,
+    String? genre,
   }) async {
     final res = await http.post(
       Uri.parse('$baseUrl/songs/create'),
@@ -104,6 +140,7 @@ class ApiService {
         'audio_url': audioUrl,
         'cover_url': coverUrl,
         'duration_seconds': durationSeconds,
+        'genre': genre,
       }),
     );
     if (res.statusCode == 201) {
@@ -223,5 +260,128 @@ class ApiService {
       return jsonDecode(body);
     }
     throw Exception('Failed to upload cover');
+  }
+
+  // Admin
+  static Future<Map<String, dynamic>> getAdminStats() async {
+    final res = await http.get(
+      Uri.parse('$baseUrl/admin/stats'),
+      headers: _headers,
+    );
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    }
+    throw Exception('Failed to fetch admin stats');
+  }
+
+  static Future<List<dynamic>> getAdminUsers() async {
+    final res = await http.get(
+      Uri.parse('$baseUrl/admin/users'),
+      headers: _headers,
+    );
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    }
+    throw Exception('Failed to fetch users');
+  }
+
+  static Future<void> deleteUser(String userId) async {
+    final res = await http.delete(
+      Uri.parse('$baseUrl/admin/users/$userId'),
+      headers: _headers,
+    );
+    if (res.statusCode != 200) {
+      throw Exception('Failed to delete user');
+    }
+  }
+
+  // Artists
+  static Future<List<dynamic>> getArtists() async {
+    final res = await http.get(Uri.parse('$baseUrl/artists'));
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    }
+    throw Exception('Failed to fetch artists');
+  }
+
+  static Future<Map<String, dynamic>> getArtistProfile(String artistId) async {
+    final res = await http.get(Uri.parse('$baseUrl/artists/$artistId'));
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    }
+    throw Exception('Failed to fetch artist profile');
+  }
+
+  static Future<void> updateArtistProfile({
+    required String artistId,
+    String? username,
+    String? bio,
+    String? avatarUrl,
+  }) async {
+    final res = await http.put(
+      Uri.parse('$baseUrl/artists/$artistId/update'),
+      headers: _headers,
+      body: jsonEncode({
+        if (username != null) 'username': username,
+        if (bio != null) 'bio': bio,
+        if (avatarUrl != null) 'avatar_url': avatarUrl,
+      }),
+    );
+    if (res.statusCode != 200) {
+      throw Exception('Failed to update profile');
+    }
+  }
+
+  // Social - Follow
+  static Future<List<dynamic>> getFollowers({String? userId}) async {
+    final res = await http.get(
+      Uri.parse('$baseUrl/follow?type=followers'),
+      headers: _headers,
+    );
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    }
+    throw Exception('Failed to fetch followers');
+  }
+
+  static Future<List<dynamic>> getFollowing({String? userId}) async {
+    final res = await http.get(
+      Uri.parse('$baseUrl/follow?type=following'),
+      headers: _headers,
+    );
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    }
+    throw Exception('Failed to fetch following');
+  }
+
+  static Future<Map<String, dynamic>> toggleFollow(String userId) async {
+    final res = await http.post(
+      Uri.parse('$baseUrl/follow/$userId'),
+      headers: _headers,
+    );
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    }
+    throw Exception('Failed to toggle follow');
+  }
+
+  // Recommendations
+  static Future<Map<String, dynamic>> getRecommendations() async {
+    final res = await http.get(Uri.parse('$baseUrl/recommendations'));
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    }
+    throw Exception('Failed to fetch recommendations');
+  }
+
+  static Future<List<dynamic>> getSimilarSongs(String songId) async {
+    final res = await http.get(
+      Uri.parse('$baseUrl/recommendations/similar/$songId'),
+    );
+    if (res.statusCode == 200) {
+      return jsonDecode(res.body);
+    }
+    throw Exception('Failed to fetch similar songs');
   }
 }
