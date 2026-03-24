@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../services/api_service.dart';
-import '../models/song_model.dart';
 import 'artist_profile.dart';
 
 class BrowseArtists extends StatefulWidget {
@@ -202,11 +201,15 @@ class _ArtistCard extends StatelessWidget {
   }
 
   Widget _defaultAvatar() {
+    final username = artist['username'] as String?;
+    final initial = username?.isNotEmpty == true
+        ? username![0].toUpperCase()
+        : '?';
     return Container(
       color: Colors.grey[300],
       child: Center(
         child: Text(
-          (artist['username'] as String?)?[0]?.toUpperCase() ?? '?',
+          initial,
           style: const TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
         ),
       ),

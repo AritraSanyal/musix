@@ -70,6 +70,10 @@ class _ArtistProfileState extends State<ArtistProfile> {
     }
   }
 
+  String _getInitial(String? username) {
+    return username?.isNotEmpty == true ? username![0].toUpperCase() : '?';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -263,9 +267,7 @@ class _ArtistProfileState extends State<ArtistProfile> {
                   color: Colors.deepPurple,
                   child: Center(
                     child: Text(
-                      (_artistData?['username'] as String?)?[0]
-                              ?.toUpperCase() ??
-                          '?',
+                      _getInitial(_artistData?['username'] as String?),
                       style: const TextStyle(
                         fontSize: 80,
                         fontWeight: FontWeight.bold,
@@ -285,8 +287,7 @@ class _ArtistProfileState extends State<ArtistProfile> {
                 ),
                 child: Center(
                   child: Text(
-                    (_artistData?['username'] as String?)?[0]?.toUpperCase() ??
-                        '?',
+                    _getInitial(_artistData?['username'] as String?),
                     style: const TextStyle(
                       fontSize: 80,
                       fontWeight: FontWeight.bold,

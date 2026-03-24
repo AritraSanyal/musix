@@ -8,17 +8,25 @@ class AdminDashboard extends StatefulWidget {
   State<AdminDashboard> createState() => _AdminDashboardState();
 }
 
-class _AdminDashboardState extends State<AdminDashboard> {
+class _AdminDashboardState extends State<AdminDashboard>
+    with SingleTickerProviderStateMixin {
+  late TabController _tabController;
   Map<String, dynamic>? _stats;
   List<dynamic> _users = [];
   bool _isLoading = true;
   String? _error;
-  int _selectedTab = 0;
 
   @override
   void initState() {
     super.initState();
+    _tabController = TabController(length: 2, vsync: this);
     _loadData();
+  }
+
+  @override
+  void dispose() {
+    _tabController.dispose();
+    super.dispose();
   }
 
   Future<void> _loadData() async {
@@ -93,7 +101,7 @@ class _AdminDashboardState extends State<AdminDashboard> {
       appBar: AppBar(
         title: const Text('Admin Dashboard'),
         bottom: TabBar(
-          onTap: (index) => setState(() => _selectedTab = index),
+          controller: _tabController,
           tabs: const [
             Tab(text: 'Overview'),
             Tab(text: 'Users'),

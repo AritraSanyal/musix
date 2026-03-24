@@ -55,6 +55,10 @@ class _SocialPageState extends State<SocialPage>
     }
   }
 
+  String _getInitial(String? username) {
+    return username?.isNotEmpty == true ? username![0].toUpperCase() : '?';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -124,7 +128,7 @@ class _SocialPageState extends State<SocialPage>
               leading: CircleAvatar(
                 backgroundColor: Theme.of(context).primaryColor,
                 child: Text(
-                  (user['username'] as String?)?[0]?.toUpperCase() ?? '?',
+                  _getInitial(user['username'] as String?),
                   style: const TextStyle(color: Colors.white),
                 ),
               ),
